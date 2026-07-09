@@ -4,17 +4,16 @@
 // information and triggers the existing n8n workflow that handles lead reading,
 // AI email generation, sending, and follow-ups.
 //
-// IMPORTANT: Make sure your n8n workflow is toggled ACTIVE (green toggle in
+// IMPORTANT: Make sure your make workflow is toggled ACTIVE (green toggle in
 // top-right of the workflow editor) so the production webhook stays live.
 // Test webhooks (/webhook-test/) only work for one request after clicking
 // "Execute Workflow" — they will NOT work reliably from the dashboard.
 
-const N8N_WEBHOOK_URL =
-  import.meta.env.VITE_N8N_WEBHOOK_URL ||
-  '/webhook/email automation'
-
+const MAKE_WEBHOOK_URL =
+  import.meta.env.VITE_MAKE_WEBHOOK_URL ||
+  "https://hook.eu1.make.com/4wryssdox4iq3fmu98wqi3asi65qx8fj";
 /**
- * Trigger the "start-campaign" n8n webhook.
+ * Trigger the "start-campaign" make webhook.
  *
  * @param {Object} campaign - The campaign payload.
  * @param {string} campaign.campaignName
@@ -35,10 +34,12 @@ export async function startCampaign(campaign) {
     followupDelay: campaign.followupDelay || '',
     emailTone: campaign.emailTone || '',
   }
+  
+  console.log("MAKE_WEBHOOK_URL:", MAKE_WEBHOOK_URL);
 
-  let response
+  let response;
   try {
-    response = await fetch(N8N_WEBHOOK_URL, {
+    response = await fetch(MAKE_WEBHOOK_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -48,7 +49,7 @@ export async function startCampaign(campaign) {
   } catch (networkError) {
     // fetch rejects on network failures (DNS, CORS preflight, offline, etc.)
     throw new Error(
-      'Unable to reach the n8n webhook. Please check the webhook URL and your network connection.',
+      'Unable to reach the make webhook. Please check the webhook URL and your network connection.',
     )
   }
 
@@ -64,7 +65,7 @@ export async function startCampaign(campaign) {
 
     if (response.status === 404) {
       throw new Error(
-        `Webhook not found (${detail}). Make sure the n8n workflow is ACTIVE (green toggle) and the Webhook node path is "email automation".`,
+        `Webhook not found (${detail}). Make sure the make workflow is ACTIVE (green toggle) and the Webhook node path is "email automation".`,
       )
     }
 
@@ -73,15 +74,22 @@ export async function startCampaign(campaign) {
     )
   }
 
-  // n8n webhook responses are usually JSON. Parse defensively in case the
+  // make webhook responses are usually JSON. Parse defensively in case the
   // workflow responds with text or an empty body.
   const contentType = response.headers.get('content-type') || ''
+  const responseText = await response.text()
   if (contentType.includes('application/json')) {
-    return response.json()
+    if (!responseText) {
+      return { ok: true }
+    }
+    try {
+      return JSON.parse(responseText)
+    } catch {
+      return { message: responseText }
+    }
   }
 
-  const text = await response.text()
-  return text ? { message: text } : { ok: true }
+  return responseText ? { message: responseText } : { ok: true }
 }
 
-export { N8N_WEBHOOK_URL }
+export { MAKE_WEBHOOK_URL }

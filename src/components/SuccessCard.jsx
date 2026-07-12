@@ -37,7 +37,7 @@ export default function SuccessCard({
           Campaign Started Successfully
         </h3>
         <p className="mt-1 text-sm text-slate-500">
-          Your outreach workflow has been triggered. n8n is now generating and
+          Your outreach workflow has been triggered. AI Agent is now generating and
           sending emails.
         </p>
       </div>

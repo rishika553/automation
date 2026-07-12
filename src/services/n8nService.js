@@ -11,7 +11,7 @@
 
 const MAKE_WEBHOOK_URL =
   import.meta.env.VITE_MAKE_WEBHOOK_URL ||
-  "https://hook.eu1.make.com/4wryssdox4iq3fmu98wqi3asi65qx8fj";
+  "https://hook.eu1.make.com/9vlcqubcglfdy6f3shnvvu4leyuunigg";
 /**
  * Trigger the "start-campaign" make webhook.
  *

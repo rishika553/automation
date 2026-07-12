@@ -106,7 +106,7 @@ export default function CampaignForm({ onSubmit, loading }) {
           value={form.hostName}
           onChange={handleChange('hostName')}
           error={errors.hostName}
-          placeholder="e.g. Manas Sharma"
+          placeholder="e.g. Manas "
           disabled={loading}
         />
         <Field
